@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
-import React from "react";
-import "./App.scss";
-import cn from "classnames";
+import React from 'react';
+import './App.scss';
+import cn from 'classnames';
 
-import usersFromServer from "./api/users";
-import categoriesFromServer from "./api/categories";
-import productsFromServer from "./api/products";
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
 // const products = productsFromServer.map((product) => {
 //   const category = null; // find by product.categoryId
@@ -20,11 +20,11 @@ const getPreparedProducts = (products) => {
   return preparedProducts;
 };
 
-const getCategoryById = (categoryId) =>
-  categoriesFromServer.find((category) => category.id === categoryId) || null;
+const getCategoryById = categoryId => categoriesFromServer
+  .find(category => category.id === categoryId) || null;
 
-const getUserById = (userId) =>
-  usersFromServer.find((user) => user.id === userId) || null;
+const getUserById = userId => usersFromServer
+  .find(user => user.id === userId) || null;
 
 export const App = () => {
   const visibleProducts = getPreparedProducts(productsFromServer);
