@@ -14,6 +14,29 @@ import productsFromServer from './api/products';
 //   return null;
 // });
 
+const getPreparedProducts = (products, option) => {
+  const { query = '', userSelected = '' } = option;
+
+  let preparedProducts = [...products];
+
+  const normalizedQuery = query.trim().toLowerCase();
+
+  if (normalizedQuery) {
+    preparedProducts = preparedProducts.filter(product => product.name
+      .toLowerCase().includes(normalizedQuery));
+  }
+
+  if (userSelected !== 'All') {
+    preparedProducts = preparedProducts.filter((product) => {
+      const category = getCategoryById(product.categoryId);
+
+      return category.ownerId === userSelected.id;
+    });
+  }
+
+  return preparedProducts;
+};
+
 const getCategoryById = categoryId => categoriesFromServer
   .find(category => category.id === categoryId) || null;
 
@@ -21,23 +44,13 @@ const getUserById = userId => usersFromServer
   .find(user => user.id === userId) || null;
 
 export const App = () => {
-  const getPreparedProducts = (products) => {
-    let preparedProducts = [...products];
-
-    if (userSelected !== 'All') {
-      preparedProducts = preparedProducts.filter((product) => {
-        const category = getCategoryById(product.categoryId);
-
-        return category.ownerId === userSelected.id;
-      });
-    }
-
-    return preparedProducts;
-  };
-
   const [userSelected, setUserSelected] = useState('All');
+  const [query, setQuery] = useState('');
 
-  const visibleProducts = getPreparedProducts(productsFromServer);
+  const visibleProducts = getPreparedProducts(productsFromServer, {
+    query,
+    userSelected,
+  });
 
   return (
     <div className="section">
@@ -74,18 +87,6 @@ export const App = () => {
                   </a>
                 );
               })}
-
-              {/* <a data-cy="FilterUser" href="#/">
-                User 1
-              </a>
-
-              <a data-cy="FilterUser" href="#/" className="is-active">
-                User 2
-              </a>
-
-              <a data-cy="FilterUser" href="#/">
-                User 3
-              </a> */}
             </p>
 
             <div className="panel-block">
@@ -95,21 +96,25 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  onChange={event => setQuery(event.target.value)}
+                  value={query}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
+                {query && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      onClick={() => setQuery('')}
+                      type="button"
+                      className="delete"
+                    />
+                  </span>
+                )}
               </p>
             </div>
 
