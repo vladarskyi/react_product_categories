@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 import cn from 'classnames';
 
@@ -14,12 +14,6 @@ import productsFromServer from './api/products';
 //   return null;
 // });
 
-const getPreparedProducts = (products) => {
-  const preparedProducts = [...products];
-
-  return preparedProducts;
-};
-
 const getCategoryById = categoryId => categoriesFromServer
   .find(category => category.id === categoryId) || null;
 
@@ -27,6 +21,22 @@ const getUserById = userId => usersFromServer
   .find(user => user.id === userId) || null;
 
 export const App = () => {
+  const getPreparedProducts = (products) => {
+    let preparedProducts = [...products];
+
+    if (userSelected !== 'All') {
+      preparedProducts = preparedProducts.filter((product) => {
+        const category = getCategoryById(product.categoryId);
+
+        return category.ownerId === userSelected.id;
+      });
+    }
+
+    return preparedProducts;
+  };
+
+  const [userSelected, setUserSelected] = useState('All');
+
   const visibleProducts = getPreparedProducts(productsFromServer);
 
   return (
@@ -39,11 +49,33 @@ export const App = () => {
             <p className="panel-heading">Filters</p>
 
             <p className="panel-tabs has-text-weight-bold">
-              <a data-cy="FilterAllUsers" href="#/">
+              <a
+                data-cy="FilterAllUsers"
+                className={cn({ 'is-active': userSelected === 'All' })}
+                href="#/"
+                onClick={() => setUserSelected('All')}
+              >
                 All
               </a>
 
-              <a data-cy="FilterUser" href="#/">
+              {usersFromServer.map((user) => {
+                const { name, id } = user;
+                const isThisUserSelected = name === userSelected.name;
+
+                return (
+                  <a
+                    data-cy="FilterUser"
+                    className={cn({ 'is-active': isThisUserSelected })}
+                    href="#/"
+                    onClick={() => setUserSelected(user)}
+                    key={id}
+                  >
+                    {name}
+                  </a>
+                );
+              })}
+
+              {/* <a data-cy="FilterUser" href="#/">
                 User 1
               </a>
 
@@ -53,7 +85,7 @@ export const App = () => {
 
               <a data-cy="FilterUser" href="#/">
                 User 3
-              </a>
+              </a> */}
             </p>
 
             <div className="panel-block">
